@@ -1,11 +1,14 @@
 package com.pranav.toll.api;
 
+import com.pranav.toll.exception.SamePincodeException;
 import com.pranav.toll.service.TollPlazaService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/toll-plazas")
@@ -19,6 +22,9 @@ public class TollPlazaController {
 
     @PostMapping
     public TollPlazaResponse findTollPlazas(@Valid @RequestBody TollPlazaRequest request) {
+        if (Objects.equals(request.sourcePincode(), request.destinationPincode())) {
+            throw new SamePincodeException();
+        }
         return tollPlazaService.findTollPlazas(request);
     }
 }

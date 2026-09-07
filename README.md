@@ -2,7 +2,7 @@
 
 Spring Boot API based on the three-page **Backend Assignment - Toll Plazas Between Two Pincodes** PDF. It provides the lookup workflow, startup loading of the supplied toll catalog, and approximate toll matching.
 
-Java 21 language target, Spring Boot 4.1.1, Maven Wrapper. No preview features, Lombok, database, or geographic libraries. Spring MVC, validation, cache, and Apache Commons CSV dependencies are included; caching is the remaining workflow step.
+Java 21 language target, Spring Boot 4.1.1, Maven Wrapper. No preview features, Lombok, database, or geographic libraries. Spring MVC, validation, cache, and Apache Commons CSV dependencies are included; successful lookups use a simple in-memory cache.
 
 ## Run and verify
 
@@ -42,6 +42,10 @@ Reference: [Google Routes computeRoutes](https://developers.google.com/maps/docu
 ## Approximate toll matching (Step 5)
 
 `TollMatcher` checks each toll against every route point using the Haversine formula, which estimates straight-line distance over the Earth's surface. A toll is included once when its closest route point is within `toll.matching-threshold-metres`, which defaults to 500 metres. This simple point-based approach can miss tolls between widely spaced route points and can include tolls on nearby roads; it does not claim the PDF's Mappls accuracy target.
+
+## Caching (Step 7)
+
+Successful lookup responses use Spring's default process-local in-memory cache with the ordered key `sourcePincode:destinationPincode`. Reversing the pincodes creates a different cache entry. Exceptions are not cached, and the cache is cleared when the application restarts.
 
 ## Bundled toll data
 
@@ -83,7 +87,7 @@ These are illustrative PDF values, not calculated results. No tolls must retain 
 - `distanceFromSource` and `distanceInKm` are returned in kilometres without additional rounding.
 - The evaluation mentions database operations/upserts, but the functional requirements only specify a CSV and caching. No persistence is scaffolded; clarify only if a database is expected later.
 - The actual CSV schema is now fixed by the bundled file: `longitude`, `latitude`, `toll_name`, and extra `geo_state`. Duplicate rows are preserved because the assignment does not require deduplication.
-- Cache duration, size, and external API failure/no-route behavior are unspecified and deferred.
+- Cache duration and size use Spring's simple in-memory defaults; the cache is intentionally barebones for this take-home.
 
 The user's scope explicitly overrides the PDF's Mappls 80–90% matching target. That accuracy target is outside this project's intended implementation scope.
 
@@ -94,11 +98,11 @@ The user's scope explicitly overrides the PDF's Mappls 80–90% matching target.
 3. Request a driving route with detailed geometry from Google Routes.
 4. Use a small Haversine helper to match each toll within 500 metres of any returned route point.
 5. Estimate distance from the source by summing consecutive route-point distances up to the closest point, then sort tolls by that estimate.
-6. Return the assignment JSON. Caching is the remaining planned step.
+6. Return the assignment JSON and cache successful results by ordered source/destination pair.
 
 The point-based approximation can miss tolls between widely spaced points and include tolls on nearby roads. Detailed geometry helps but does not guarantee accuracy. Cumulative Haversine distance is also an approximation. This approach does not claim the PDF's 80–90% agreement with Mappls and needs no JTS or coordinate projection.
 
-Step 7 will add successful-result caching. Google configuration, timeouts, CSV loading, validation, matching, and focused tests are already present. Keep API keys out of source control.
+The endpoint uses a simple process-local cache. Google configuration, timeouts, CSV loading, validation, matching, and focused tests are already present. Keep API keys out of source control.
 
 ## Structure
 

@@ -3,8 +3,8 @@ package com.pranav.toll.service;
 import com.pranav.toll.api.TollPlazaRequest;
 import com.pranav.toll.api.TollPlazaResponse;
 import com.pranav.toll.data.TollPlazaCatalog;
-import com.pranav.toll.exception.SamePincodeException;
 import com.pranav.toll.google.GoogleMapsClient;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -25,11 +25,9 @@ public class TollPlazaService {
         this.tollMatcher = tollMatcher;
     }
 
+    @Cacheable(cacheNames = "toll-plaza-lookups",
+            key = "#request.sourcePincode() + ':' + #request.destinationPincode()")
     public TollPlazaResponse findTollPlazas(TollPlazaRequest request) {
-        if (request != null && java.util.Objects.equals(request.sourcePincode(), request.destinationPincode())) {
-            throw new SamePincodeException();
-        }
-
         var source = googleMapsClient.geocode(request.sourcePincode());
         var destination = googleMapsClient.geocode(request.destinationPincode());
         var route = googleMapsClient.route(source, destination);
