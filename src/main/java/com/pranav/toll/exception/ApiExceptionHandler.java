@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    @ExceptionHandler(InvalidPincodeException.class)
+    public ResponseEntity<ApiError> handleInvalidPincode(InvalidPincodeException exception) {
+        return invalidPincodeResponse();
+    }
+
     @ExceptionHandler(SamePincodeException.class)
     public ResponseEntity<ApiError> handleSamePincode(SamePincodeException exception) {
         return ResponseEntity.badRequest().body(new ApiError(exception.getMessage()));

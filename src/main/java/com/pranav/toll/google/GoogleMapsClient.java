@@ -1,5 +1,6 @@
 package com.pranav.toll.google;
 
+import com.pranav.toll.exception.InvalidPincodeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -45,9 +46,16 @@ public class GoogleMapsClient {
             // HTTP exceptions can contain the API key in their URL; do not propagate them.
             throw new GoogleMapsException("Google geocoding request failed");
         }
-        var results = body == null ? null : body.path("results");
+        var status = body == null ? "" : body.path("status").asText();
+        if ("ZERO_RESULTS".equals(status)) {
+            throw new InvalidPincodeException();
+        }
+        if (!"OK".equals(status)) {
+            throw new GoogleMapsException("Google geocoding request failed");
+        }
+        var results = body.path("results");
         if (results == null || results.isEmpty()) {
-            throw new GoogleMapsException("Google could not resolve the pincode");
+            throw new GoogleMapsException("Google geocoding returned no results with OK status");
         }
         var location = results.get(0).path("geometry").path("location");
         return new Coordinates(location.path("lat").asDouble(), location.path("lng").asDouble());

@@ -26,7 +26,7 @@ The endpoint geocodes both pincodes, requests a driving route, matches nearby to
 
 ## Google geocoding (Step 3)
 
-`GoogleMapsClient.geocode(pincode)` sends one request and reads the first result's coordinates. It uses a 3-second connection timeout and a 5-second read timeout. A failed request or unsuccessful lookup throws `GoogleMapsException`. For this take-home, we trust Google's successful response: no postal-code rechecking, coordinate-range checks, or error-category hierarchy. Raw HTTP exceptions are not propagated because their URLs can contain the API key. Google client tests are omitted to keep this assignment small.
+`GoogleMapsClient.geocode(pincode)` sends one request and reads the first result's coordinates. It uses a 3-second connection timeout and a 5-second read timeout. Google's `ZERO_RESULTS` status raises `InvalidPincodeException`, mapped to HTTP 400 with the assignment's invalid-pincode error. Other unsuccessful statuses and request failures raise `GoogleMapsException`. For this take-home, we trust Google's successful response: no postal-code rechecking or coordinate-range checks. Raw HTTP exceptions are not propagated because their URLs can contain the API key. Google client tests are omitted to keep this assignment small.
 
 To supply the key on Windows, open the application's IntelliJ Run Configuration and add `GOOGLE_MAPS_API_KEY` under Environment variables. Alternatively set it through Windows' user environment-variable settings, then restart IntelliJ/your terminal before running Maven. Never paste the key into chat or commit it. No key is needed for the remaining automated tests; they do not call Google.
 
@@ -90,7 +90,7 @@ These are illustrative PDF values, not calculated results. No tolls must retain 
 ## Remaining implementation notes
 
 - The PDF gives no HTTP statuses and calls the empty-list response an error despite using the success shape. This implementation uses 200 for a found route with zero tolls and 400 for invalid or equal pincodes.
-- Request validation requires JSON strings matching `[1-9][0-9]{5}`, rejects missing/null/blank values, and returns HTTP 400. Pincodes Google cannot resolve raise `GoogleMapsException`. Input is not trimmed or normalized.
+- Request validation requires JSON strings matching `[1-9][0-9]{5}`, rejects missing/null/blank values, and returns HTTP 400. Pincodes Google cannot resolve also return HTTP 400 with the same invalid-pincode error. Input is not trimmed or normalized.
 - `distanceFromSource` and `distanceInKm` are returned in kilometres without additional rounding.
 - The evaluation mentions database operations/upserts, but the functional requirements only specify a CSV and caching. No persistence is scaffolded; clarify only if a database is expected later.
 - The actual CSV schema is now fixed by the bundled file: `longitude`, `latitude`, `toll_name`, and extra `geo_state`. Duplicate rows are preserved because the assignment does not require deduplication.
