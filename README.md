@@ -1,3 +1,5 @@
+# Have used agents thoroughly in making this. if you want something created by hand, please have a look at the simple chat app.
+
 # Toll Estimate Inator
 
 This project was built with extensive agent assistance. If you want something
