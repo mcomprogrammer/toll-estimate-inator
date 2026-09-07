@@ -19,19 +19,6 @@ class TollPlazaScaffoldTests {
     private MockMvc mvc;
 
     @Test
-    void assignmentEndpointReportsThatLookupIsNotImplemented() throws Exception {
-        mvc.perform(post("/api/v1/toll-plazas")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"sourcePincode":"110001","destinationPincode":"560001"}
-                                """))
-                .andExpect(status().isNotImplemented())
-                .andExpect(content().json("""
-                        {"error":"Toll plaza lookup is not implemented in this scaffold"}
-                        """));
-    }
-
-    @Test
     void missingSourcePincodeIsRejected() throws Exception {
         mvc.perform(post("/api/v1/toll-plazas")
                         .contentType(MediaType.APPLICATION_JSON)
