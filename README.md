@@ -45,6 +45,10 @@ Reference: [Google Geocoding request and response](https://developers.google.com
 
 Reference: [Google Routes computeRoutes](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRoutes).
 
+## Approximate toll matching (Step 5)
+
+`TollMatcher` checks each toll against every route point using the Haversine formula, which estimates straight-line distance over the Earth's surface. A toll is included once when its closest route point is within `toll.matching-threshold-metres`, which defaults to 500 metres. This simple point-based approach can miss tolls between widely spaced route points and can include tolls on nearby roads; it does not claim the PDF's Mappls accuracy target.
+
 ## Bundled toll data
 
 The source file is bundled at `src/main/resources/data/toll_plaza_india_cleaned.csv` and is loaded from the classpath using Apache Commons CSV. Its inspected headers are `longitude,latitude,toll_name,geo_state`, with 1,536 data rows. The loader stores `toll_name`, `latitude`, and `longitude`; `geo_state` is accepted as extra metadata and ignored. Quoted CSV values are parsed correctly.
