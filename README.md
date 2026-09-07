@@ -2,9 +2,6 @@
 
 # Toll Estimate Inator
 
-This project was built with extensive agent assistance. If you want something
-created by hand, please have a look at the simple chat app.
-
 Small Spring Boot API that finds approximate toll plazas between two Indian
 pincodes using Google Geocoding and Routes APIs.
 
