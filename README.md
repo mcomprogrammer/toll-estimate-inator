@@ -1,3 +1,5 @@
+# Have used agents thoroughly in making this. if you want something created by hand, please have a look at the simple chat app.
+
 # Toll Estimate Inator
 
 Spring Boot API based on the three-page **Backend Assignment - Toll Plazas Between Two Pincodes** PDF. It provides the lookup workflow, startup loading of the supplied toll catalog, and approximate toll matching.
