@@ -10,6 +10,7 @@ Install JDK 21 or a compatible newer JDK and set `JAVA_HOME` to its installation
 
 ```powershell
 .\mvnw.cmd test
+.\mvnw.cmd verify
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -46,6 +47,12 @@ Reference: [Google Routes computeRoutes](https://developers.google.com/maps/docu
 ## Caching (Step 7)
 
 Successful lookup responses use Spring's default process-local in-memory cache with the ordered key `sourcePincode:destinationPincode`. Reversing the pincodes creates a different cache entry. Exceptions are not cached, and the cache is cleared when the application restarts.
+
+Successful empty toll lists are cached too. There is no expiration or size limit. This demonstrates Spring caching for the assignment; it is not a verified retention policy for live Google data. [Google's Routes policies](https://developers.google.com/maps/documentation/routes/policies) restrict caching of Routes content. Review the applicable agreement before using this full-response cache with live Google results; clearing memory on restart does not resolve that restriction.
+
+## Automated checks
+
+Run `./mvnw.cmd verify` on Windows to run the tests and package the executable JAR in `target/`. The focused suite covers request validation, bundled CSV loading, tolls inside/outside the matching threshold, cumulative distance and sorting, no matching tolls, application startup, and cache reuse through Spring's proxy. Google calls are mocked in workflow and caching tests; the suite does not spend API calls or verify live credentials. Google client response tests are intentionally omitted for the simplified scope.
 
 ## Bundled toll data
 
@@ -87,7 +94,7 @@ These are illustrative PDF values, not calculated results. No tolls must retain 
 - `distanceFromSource` and `distanceInKm` are returned in kilometres without additional rounding.
 - The evaluation mentions database operations/upserts, but the functional requirements only specify a CSV and caching. No persistence is scaffolded; clarify only if a database is expected later.
 - The actual CSV schema is now fixed by the bundled file: `longitude`, `latitude`, `toll_name`, and extra `geo_state`. Duplicate rows are preserved because the assignment does not require deduplication.
-- Cache duration and size use Spring's simple in-memory defaults; the cache is intentionally barebones for this take-home.
+- The cache has no expiration or size bound; see the caching limitation above.
 
 The user's scope explicitly overrides the PDF's Mappls 80–90% matching target. That accuracy target is outside this project's intended implementation scope.
 
@@ -110,6 +117,6 @@ The endpoint uses a simple process-local cache. Google configuration, timeouts, 
 - `data`: startup catalog and in-memory toll record.
 - `service`: lookup workflow, Haversine helper, and approximate toll matcher.
 - `exception`: validation and same-pincode error mapping.
-- `src/test`: application startup and endpoint wiring checks, with no external API calls.
+- `src/test`: controller validation, catalog loading, matching, workflow, and cache checks, with no external API calls.
 
 Reference for the selected framework: [Spring Boot system requirements](https://docs.spring.io/spring-boot/system-requirements.html).

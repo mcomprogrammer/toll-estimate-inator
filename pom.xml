@@ -12,7 +12,7 @@
 	<artifactId>toll-estimate-inator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>toll-estimate-inator</name>
-	<description>Toll plaza API scaffold</description>
+	<description>Toll plaza lookup API</description>
 	<url/>
 	<licenses>
 		<license/>
