@@ -9,17 +9,23 @@ pincodes using Google Geocoding and Routes APIs.
 
 - Java 21
 - Internet access for the first Maven build
-- `GOOGLE_MAPS_API_KEY` with Geocoding and Routes APIs enabled
+- `GOOGLE_MAPS_API_KEY` with billing, Geocoding API, and Routes API enabled
 
 On Windows, set the key in IntelliJ's run configuration or as a Windows user
 environment variable, then restart IntelliJ or the terminal.
 
 ## Run
 
+From the project folder, with `JAVA_HOME` pointing to your JDK:
+
 ```powershell
 .\mvnw.cmd test
 .\mvnw.cmd spring-boot:run
 ```
+
+On macOS/Linux, use `sh mvnw spring-boot:run`. Keep the application running;
+wait for the startup message showing port 8080 before sending requests.
+The interviewer must supply their own Google API key; it is not included.
 
 ## Request
 
@@ -35,18 +41,10 @@ Content-Type: application/json
 }
 ```
 
-The response contains the route distance and matching toll plazas:
-
-```json
-{
-  "route": {
-    "sourcePincode": "110001",
-    "destinationPincode": "560001",
-    "distanceInKm": 2134.449
-  },
-  "tollPlazas": []
-}
-```
+In Postman, select **POST**, then **Body > raw > JSON** and paste the request.
+`localhost:8080` is the application running on your own computer.
+HTTP 200 returns `route` and `tollPlazas`, sorted by `distanceFromSource` in km.
+An empty list means no tolls matched; actual distances and matches vary by route.
 
 Missing, malformed, or equal pincodes return HTTP 400. A pincode that Google
 cannot resolve also returns HTTP 400.

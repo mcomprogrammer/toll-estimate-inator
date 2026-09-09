@@ -2,6 +2,7 @@ package com.pranav.toll.api;
 
 import com.pranav.toll.exception.InvalidPincodeException;
 import com.pranav.toll.google.GoogleMapsClient;
+import com.pranav.toll.google.GoogleMapsException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class TollPlazaControllerTests {
+
+    @Test
+    void providerFailureReturnsAnUnderstandableError() throws Exception {
+        when(googleMapsClient.geocode("560064"))
+                .thenThrow(new GoogleMapsException("Google geocoding request failed"));
+
+        mvc.perform(post("/api/v1/toll-plazas")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"sourcePincode":"560064","destinationPincode":"411045"}
+                                """))
+                .andExpect(status().isBadGateway())
+                .andExpect(content().json("""
+                        {"error":"Google geocoding request failed"}
+                        """));
+    }
 
     @Autowired
     private MockMvc mvc;
